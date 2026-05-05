@@ -24,7 +24,13 @@ Static Analysis Tools Used:
 - Bandit: Security vulnerability detection (run: python -m bandit app_student.py)
 """
 
-# TODO: Import the logging module
+import logging
+
+logging.basicConfig(
+    filename='Troubleshooting_studentID.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for
 
 app = Flask(__name__)
@@ -68,8 +74,7 @@ def validate_username(username):
 
 @app.route('/')
 def home():
-    # TODO: Log "Home page accessed" at INFO level
-    print("Home page accessed") # Replace with logger
+    logging.info("EVENT: Home page accessed")
     return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -90,12 +95,12 @@ def login():
         # Authentication Logic
         if validate_username(username) and password == "secret123":
             # TODO: Log successful login
-            print(f"User {username} logged in.") 
+            logging.info(f"EVENT: User {username} logged in.")
             flash(f"Welcome back, {username}!", "success")
             return redirect(url_for('home'))
         else:
             # TODO: Log failed login (WARNING)
-            print(f"Login failed for {username}.")
+            logging.warning(f"ACTION: Login failed for {username}.")
             flash("Invalid credentials.", "danger")
             return redirect(url_for('login'))
 
@@ -126,7 +131,7 @@ def rent_equipment():
         total_cost = daily_rate * days
         
         # TODO: Log the successful calculation (INFO)
-        print(f"Calculated cost: {total_cost}")
+        logging.info(f"ACTION: Calculated cost: {total_cost}")
 
         rental_result = {
             "equipment": equipment_type,
@@ -142,5 +147,5 @@ def rent_equipment():
     return render_template('rent.html', rental_result=rental_result)
 
 if __name__ == '__main__':
-    print("Starting application...") # Replace with logger
+    logging.info("EVENT: Starting application...")
     app.run(debug=False, port=5000)
