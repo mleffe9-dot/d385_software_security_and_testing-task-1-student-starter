@@ -55,7 +55,9 @@ def validate_username(username):
     Validates that the username is allowed.
     Currently insecure: it returns True for almost anything!
     """
-    # TODO: Add assertions here to check if username is a string and not empty.
+    assert isinstance(username, str), "Username must be a string"
+    assert username.strip() != "", "Username cannot be empty"
+    logging.info("ASSERTION PASSED: Username is a valid non-empty string")
     
     allowed_users = {"admin", "alice", "bob", "charlie"}
     if username in allowed_users:
@@ -80,11 +82,15 @@ def login():
         # Simulated IP address (In a real app, this would be request.remote_addr)
         ip_address = request.remote_addr 
         
-        # TODO: Log the login attempt details (username and IP)
+        logging.info(f"EVENT: Login attempt - Username: {username}, IP: {ip_address}")
 
-        # TODO: Add defensive check (Assertion) to validate ip_address format (e.g., not None, valid string format)
+        # Assertion to validate IP address
+        assert ip_address is not None and isinstance(ip_address, str), "Invalid IP address"
+        logging.info(f"ASSERTION PASSED: Valid IP address detected - {ip_address}")
 
-        # TODO: Check for Suspicious IP (e.g., external IPs not starting with "192.168." or "10.") and log a WARNING
+        # Suspicious IP check
+        if not (ip_address.startswith("192.168.") or ip_address.startswith("10.")):
+            logging.warning(f"ACTION: Suspicious IP detected - {ip_address}")
         
         # Authentication Logic
         if validate_username(username) and password == "secret123":
@@ -108,29 +114,23 @@ def rent_equipment():
         equipment_type = request.form.get("equipment_type")
         days_str = request.form.get("days")
 
-        # TODO: Log the rental request details
+        logging.info(f"EVENT: Rental request received - Equipment: {equipment_type}, Days: {days_str}")
 
         # --- VULNERABLE SECTION START ---
-        # TODO: Wrap this section in a try/except block to catch crashes (ValueError, etc.)
+        try:
+            daily_rate = EQUIPMENT_PRICES[equipment_type]
+        except KeyError:
+            logging.error(f"ERROR: Invalid equipment type selected: {equipment_type}")
+            flash("Invalid equipment type selected.", "danger")
+            return render_template('rent.html', rental_result=None)
+            
+        try:
+            days = int(days_str)
+        except ValueError:
+            logging.warning(f"WARNING: Invalid input for days: {days_str}")
+            flash("Please enter a valid number of days.", "danger")
+            return render_template('rent.html', rental_result=None)
         
-        # Potential Crash: What if equipment_type is not in the dictionary?
-    try:
-        daily_rate = EQUIPMENT_PRICES[equipment_type]
-    except KeyError:
-        logging.errror(f"ERROR: Invalid equipment type selected: {equipment_type}")
-        flash("Invalid equipment type selected.", "danger")
-        return render_template('rent.html', rental_result=None)
-        
-        # Potential Crash: What if days_str is "abc"? (ValueError)
-    try:
-        days = int(days_str)
-    except ValueError:
-        logging.error(f"WARNING: Invalid input for days: {days_str}")
-        flash("Please enter a valid number of days.", "danger")
-        return render_template('rent.html', rental_result=None)
-        
-        # Logic Defect: What if days is -5? It currently calculates a negative cost!
-        # TODO: Add an assertion or check to ensure days > 0
         if days <= 0:
             logging.warning(f"WARNING: Invalid number of days (must be > 0): {days}")
             flash("Number of days must be greater than zero.", "danger")
@@ -149,7 +149,6 @@ def rent_equipment():
         
         # --- VULNERABLE SECTION END ---
         
-        # TODO: In your except blocks, log the errors (ERROR) and flash a user-friendly message
 
     return render_template('rent.html', rental_result=rental_result)
 
