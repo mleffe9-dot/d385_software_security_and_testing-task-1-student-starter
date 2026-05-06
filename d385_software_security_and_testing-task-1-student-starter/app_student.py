@@ -36,13 +36,7 @@ from flask import Flask, render_template, request, jsonify, flash, redirect, url
 app = Flask(__name__)
 app.secret_key = 'supersecretkeyforflasksessions'
 
-# ------------------------------------------------------------
-# TODO: Configure Logging Here
-# Requirements:
-# - Filename: 'Troubleshooting_studentID.log'
-# - Level: INFO (capture INFO, WARNING, ERROR)
-# - Format: '%(asctime)s - %(levelname)s - %(message)s'
-# ------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------
 
 
 # Equipment Pricing Data
@@ -130,7 +124,6 @@ def rent_equipment():
         
         total_cost = daily_rate * days
         
-        # TODO: Log the successful calculation (INFO)
         logging.info(f"ACTION: Calculated cost: {total_cost}")
 
         rental_result = {
