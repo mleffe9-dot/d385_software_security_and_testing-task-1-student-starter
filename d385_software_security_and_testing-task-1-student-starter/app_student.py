@@ -114,13 +114,27 @@ def rent_equipment():
         # TODO: Wrap this section in a try/except block to catch crashes (ValueError, etc.)
         
         # Potential Crash: What if equipment_type is not in the dictionary?
+    try:
         daily_rate = EQUIPMENT_PRICES[equipment_type]
+    except KeyError:
+        logging.errror(f"ERROR: Invalid equipment type selected: {equipment_type}")
+        flash("Invalid equipment type selected.", "danger")
+        return render_template('rent.html', rental_result=None)
         
         # Potential Crash: What if days_str is "abc"? (ValueError)
+    try:
         days = int(days_str)
+    except ValueError:
+        logging.error(f"WARNING: Invalid input for days: {days_str}")
+        flash("Please enter a valid number of days.", "danger")
+        return render_template('rent.html', rental_result=None)
         
         # Logic Defect: What if days is -5? It currently calculates a negative cost!
         # TODO: Add an assertion or check to ensure days > 0
+        if days <= 0:
+            logging.warning(f"WARNING: Invalid number of days (must be > 0): {days}")
+            flash("Number of days must be greater than zero.", "danger")
+            return render_template('rent.html', rental_result=None)
         
         total_cost = daily_rate * days
         
